@@ -1,0 +1,47 @@
+<app-core-modal [open]="isOpen" class="w-[900px]">
+  <div class="flex flex-col px-[16px] py-[24px]">
+    <div class="flex flex-row h-[150px] rounded-[12px] gap-[16px] bg-tt-field-background-color p-[16px]">
+      <div class="flex flex-col w-[704px]">
+        <p class="text-tt-font-size_3xl text-tt-main-text-color font-medium leading-0">Введите название чата и выберите сотрудников</p>
+        <p>Которых хотели бы пригласить в новый чат</p>
+      </div>
+      <img class="size-[117px]" src="./../../../../../assets/woman-with-coffee.png" alt="">
+    </div>
+    <form [formGroup]="chatForm" (ngSubmit)="onSubmit()">
+      <div class="mt-[16px]">
+        <input id="formName" formControlName="acceptTerms" placeholder="название чата" type="text" [formControl]="formName">
+      </div>
+      <div class="my-[16px] h-[40px]"> 
+        <app-core-search-field placeholder="Поиск сотрудника"></app-core-search-field>
+      </div>
+      <app-core-modal-content>
+          <div class="h-[330px]">
+            <div class="flex flex-col h-[60px]" *ngFor="let user of userList">
+              <label>
+                <div class="flex flex-row justify-between px-[16px] items-center">
+                  <div class="flex flex-row justify-start gap-[16px]  h-[60px]">
+                    <app-core-avatar size="l" placeholder="UX"></app-core-avatar>
+                    <div class="flex flex-col">
+                      <p>{{user.name}}</p>
+                      <p class="text-tt-text-secondary">{{user.jobPosition}}</p>
+                    </div>
+                  </div>
+                  <input 
+                  id="test"
+                  type="checkbox"
+                  formControlName="acceptTerms" 
+                  class="flex justify-end size-[18px] rounded-full bg-[#D9D9D9]" 
+                  (click)="selectUser(user)">
+                </div>
+              </label>
+
+            </div>
+          </div>
+      </app-core-modal-content>
+      <div class="flex flex-row gap-[16px] justify-end">
+        <app-core-button (click)="onClose()"> Отмена</app-core-button>
+        <app-core-button type="submit" [disabled]="!formName.valid"> Создать чат</app-core-button>
+      </div>
+    </form>
+  </div>
+</app-core-modal>

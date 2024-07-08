@@ -1,0 +1,260 @@
+<div *ngIf="state.actualChat" class="flex flex-row w-full h-full border-tt-border-default">
+  <div class="flex flex-col h-full w-full">
+    <div class="flex flex-row h-[72px] justify-between pl-[24px] pr-[16px] bg-tt-hover-color items-center">
+      <div class="flex flex-col" *ngIf="state.actualChat?.chatEntity?.isGroup === true; else personal">
+        <h2 class="font-medium mb-2 text-tt-font-size_2xl">
+          {{ state.actualChat.chatEntity.name }}
+        </h2>
+
+        <p class="font-normal text-tt-text-secondary text-tt-font-size_m">
+          {{ state.actualChat.chatEntity.users.length }} участников 1 в сети
+        </p>
+      </div>
+
+      <div (click)="
+          performAction({
+            type: MessageListActionTypes.OPEN_MENU
+          })
+        ">
+        <svg-chevron-forward class="flex size-[40px] items-center justify-center"></svg-chevron-forward>
+      </div>
+    </div>
+
+    <ng-template #personal>
+      <div class="flex flex-row gap-3 align-middle">
+        <app-core-avatar [size]="'l'" [online]="true" placeholder="UX" />
+        <div class="flex flex-col">
+          <h2 class="font-semibold text-tt-font-size_2xl">
+            {{ state.actualChat.chatEntity.name }}
+          </h2>
+          <p class="font-normal text-tt-text-secondary text-tt-font-size_l">
+            {{ state.actualChat.chatEntity.users[0].jobPosition }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="messageContent flex flex-col pl-6 pr-[58px] h-[760px] bg-tt-selected-tab-color overflow-y-scroll"
+      #scrollMe
+      [ngClass]="{
+        'h-[714px]':
+          state.repliedMessage !== null
+      }">
+      <div *ngFor="let message of state.actualMessages" #messages class="text-center">
+        <div *ngIf="message.inConversation === false">
+          <div *ngIf="message.dateCell.visibility === true"
+            class="inline-block rounded-lg px-[24px] py-[8px] mx-auto mb-[24px] bg-[#0957D026]">
+            <ng-container *ngIf="message.dateCell.dateIsDate">
+              <span class="mr-[6px]">{{ message.dateCell.dateForm | date: "dd" }}</span>
+              <span>{{ message.dateCell.dateForm | date: "MMMM" }}</span>
+            </ng-container>
+            <ng-container *ngIf="!message.dateCell.dateIsDate">
+              {{ message.dateCell.dateForm }}
+            </ng-container>
+          </div>
+          <div class="flex flex-row gap-[16px] max-w-[70%]" (contextmenu)="
+            performAction({
+              type: MessageListActionTypes.MODAL_OPEN,
+              event: $event,
+              selectedMessage: message,
+            })
+          ">
+            <div *ngIf="message.messageEntity.senderId !== 'You'" class="flex flex-row gap-[16px]">
+              <app-core-avatar class="cursor-pointer" [size]="'m'" [online]="false" placeholder="UX" />
+              <div class="flex flex-col py-2 px-4 bg-tt-icon-contrast-background mb-4 rounded-2 flex-wrap">
+                <div class="flex flex-row justify-between items-baseline">
+                  <p class="font-medium text-tt-font-size_l cursor-pointer">
+                    {{message.messageEntity.senderId}}
+                  </p>
+                  <p class="flex text-tt-text-secondary text-tt-font-size_s cursor-pointer pl-[8px]">
+                    {{ message.messageEntity.timeStamp| date: "HH:mm" }}
+                  </p>
+                </div>
+                <p class="font-normal text-tt-font-size_l text-start">
+                  {{message.messageEntity.content}}
+                </p>
+
+                <div *ngIf="message.conversationCount > 1"
+                  class="flex flex-row gap-[2px] w-[45px] h-[23px] mt-[8px] bg-[#EBEBEB] cursor-pointer rounded-2xl pl-[2px]"
+                  (click)="performAction({
+                  type: MessageListActionTypes.OPEN_CONVERSATION,
+                  selectedMessage: message,
+                })">
+                  <svg-bubble-right></svg-bubble-right>
+                  <p *ngIf="message.conversationCount <= 99" class="font-normal text-tt-font-size_l">{{
+                    message.conversationCount }}</p>
+                  <p *ngIf="message.conversationCount > 99" class="font-normal text-tt-font-size_l">99+</p>
+                </div>
+
+                <div *ngIf="message.messageEntity.id === 4" class="flex flex-row gap-[16px] mt-[8px]">
+                  <a class="flex justify-start" href="../../../../../assets/pencil.svg" download="pencil">
+                    <div class="flex justify-center size-[56px] rounded-[16px] bg-[#F6F7F8]">
+                      <div class="flex justify-center m-auto size-[32px] rounded-full bg-[#B8BECD]">
+                        <svg-arrow-down class="m-auto">
+                        </svg-arrow-down>
+                      </div>
+                    </div>
+                  </a>
+                  <div class="flex flex-col justify-start">
+                    <p class="flex">pencil.svg</p>
+                    <div class="flex flex-row gap-[2px]">
+                      <p class="text-tt-text-secondary">2.9KB -</p>
+                      <p class="cursor-pointer text-blue-500">Загрузить</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="message.messageEntity.senderId === 'You'" class="flex justify-end " (contextmenu)="
+            performAction({
+              type: MessageListActionTypes.MODAL_OPEN,
+              event: $event,
+              selectedMessage: message,
+            })
+          ">
+            <div
+              class="flex flex-col justify-between items-baseline py-2 px-4 bg-[#0957D026] mb-4 rounded-2 ml-4 gap-2 "
+              *ngIf="message.repliedContent === null; else replied">
+              <div class="flex flex-row gap-[8px] justify-between items-baseline w-full">
+                <p class="font-normal text-tt-font-size_l text-start">
+                  {{ message.messageEntity.content }}
+                </p>
+                <p class="flex text-tt-text-secondary text-tt-font-size_s cursor-pointer">
+                  {{ message.messageEntity.timeStamp | date: "HH:mm" }}
+                </p>
+
+                <div [style.display]="message.conversationCount > 2 ? 'flex' : 'none'"
+                  class="flex-row gap-[2px] w-[45px] h-[23px] mt-[8px] bg-[#EBEBEB] cursor-pointer rounded-2xl pl-[2px]"
+                  (click)="performAction({
+                  type: MessageListActionTypes.OPEN_CONVERSATION,
+                  selectedMessage: message,
+                })">
+                  <svg-bubble-right></svg-bubble-right>
+                  <p *ngIf="message.conversationCount <= 99" class="font-normal text-tt-font-size_l">{{
+                    message.conversationCount }}</p>
+                  <p *ngIf="message.conversationCount > 99" class="font-normal text-tt-font-size_l">99+</p>
+                </div>
+              </div>
+              <div *ngFor="let file of message.pinedFiles" class="flex flex-row gap-[16px] mt-[8px]">
+
+                <a class="flex justify-start" href="" download="pencil">
+                  <div class="flex justify-center size-[56px] rounded-[16px] bg-[#F6F7F8]">
+                    <div class="flex justify-center m-auto size-[32px] rounded-full bg-[#B8BECD]">
+                      <svg-arrow-down class="m-auto">
+                      </svg-arrow-down>
+                    </div>
+                  </div>
+                </a>
+                <div class="flex flex-col justify-start">
+                  <p class="flex">Название файла</p>
+                  <div class="flex flex-row gap-[2px] items-center">
+                    <p class="text-tt-text-secondary">2.9KB -</p>
+                    <p class="cursor-pointer text-blue-500">Загрузить</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <ng-template #replied>
+            <div class="flex flex-col bg-[#0957D026] rounded-lg px-4 mb-4">
+              <div class="flex flex-row justify-between items-center py-2 gap-2">
+                <div class="flex flex-row bg-white pr-[17px] rounded-[4px] h-[38px] items-center">
+                  <div class="h-[32px] w-1 bg-tt-primary ml-[2px]"></div>
+                  <div class="pl-[13px] text-start">
+                    <p class="text-tt-font-size_l font-medium">
+                      {{ message.repliedContent?.senderId }}
+                    </p>
+                    <p class="text-tt-font-size_l">
+                      {{ message.repliedContent?.content }}
+                    </p>
+                  </div>
+                </div>
+                <p class="flex text-tt-text-secondary text-tt-font-size_s cursor-pointer">
+                  {{ message.messageEntity.timeStamp | date: "HH:mm" }}
+                </p>
+              </div>
+              <p class="font-normal text-tt-font-size_l pb-[8px] text-start">
+                {{ message.messageEntity.content }}
+              </p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <div class="Input relative bottom-0 flex flex-col bg-tt-selected-tab-color"
+    [ngClass]="{
+      'w-[700px]':
+        state.showMenu === true
+    }"
+    >
+      <div *ngIf="state.repliedMessage"
+        class="flex flex-row justify-between h-[48px] rounded-lg bg-[#0957D026] ml-[64px] mr-[62px] pl-[8px] pr-[16px] items-center">
+        <div class="flex flex-row gap-[8px] items-center">
+          <svg-reply class="flex justify-center items-center size-[32px]"></svg-reply>
+          <div class="flex flex-col">
+            <p class="font-medium text-tt-font-size_l">
+              {{ state.repliedMessage.messageEntity.senderId }}
+            </p>
+            <p class="font-normal text-tt-font-size_l">
+              {{ state.repliedMessage.messageEntity.content }}
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center items-center" (click)="performAction({
+          type: MessageListActionTypes.CLOSE_REPLY
+        })">
+          <svg-x-mark class="flex justify-center items-center size-[32px]"></svg-x-mark>
+        </div>
+      </div>
+      <div class="flex flex-row w-full h-[74px] items-center bg-tt-selected-tab-color justify-between">
+        <div class="flex justify-center w-[40px] ml-[20px] items-center">
+          <label for="file-input">
+            <img src="../../../../../assets/paperclip.svg" alt="Выбрать файл">
+          </label>
+          <input type="file" id="file-input" hidden (change)="onFileSelected($event)">
+        </div>
+        <app-messenger-input-field class="w-full" (onSubmit)="
+            performAction({
+              type: MessageListActionTypes.SEND_MESSAGE,
+              inputMessage: $event,
+              chatId: state.actualChat.chatEntity.id,
+              repliedMessage: state.repliedMessage,
+              pinedFiles: null,
+            })
+          "></app-messenger-input-field>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="state.showMenu" class="flex justify-end">
+    <app-messenger-menu></app-messenger-menu>
+  </div>
+
+  <div *ngIf="state.modal?.visibility === true" class="absolute animated fadeIn" [style.left.px]="state.modal?.posX"
+    [style.top.px]="state.modal?.posY">
+    <app-messenger-modal (sectionClickedEventEmitter)="
+            performAction({
+              type: MessageListActionTypes.GET_MODAL_SECTION,
+              section: $event
+            })" (isVisibleChange)="
+            performAction({
+                type: MessageListActionTypes.MODAL_CLOSE,
+                isModalVisible: $event
+              })" [type]="'messages'">
+    </app-messenger-modal>
+  </div>
+
+  <app-messenger-upload-modal *ngIf="outputFiles" [isOpen]="outputFiles.length !== 0" [incomingFiles]="outputFiles"
+    (outputMessage)="performAction({
+      type: MessageListActionTypes.SEND_MESSAGE,
+      inputMessage: $event,
+      chatId: state.actualChat.chatEntity.id,
+      repliedMessage: state.repliedMessage,
+      pinedFiles: pinedFiles
+    })" (files)="getUploadedFiles($event)"></app-messenger-upload-modal>
+
+</div>

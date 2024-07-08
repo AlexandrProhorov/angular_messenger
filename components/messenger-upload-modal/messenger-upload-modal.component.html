@@ -1,0 +1,39 @@
+<app-core-modal [open]="isOpen">
+    <app-core-modal-content>
+        <div class="flex flex-col w-[500px] h-[960px] px-[16px] py-[24px]">
+            <div class="flex flex-row justify-between">
+                <svg-x-mark (click)="onClose()"></svg-x-mark>
+            </div>
+            <div class="flex h-[620px] flex-col justify-end">
+                <div *ngIf="incomingFiles.length === 0">
+                    <h1>выберите файлы</h1>
+                </div>
+                <div *ngFor="let file of incomingFiles" class="flex flex-row gap-[16px] mt-[8px] mb-[16px] ml-[8px]">
+                    <div class="flex justify-start">
+                      <div class="flex justify-center size-[56px] rounded-[16px] bg-[#F6F7F8]">
+                        <div class="flex justify-center m-auto size-[32px] rounded-full bg-[#B8BECD]">
+                          <svg-arrow-down class="m-auto"></svg-arrow-down>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col justify-start">
+                      <p class="flex">{{file.name}}</p>
+                      <div class="flex flex-row gap-[2px]">
+                        <p class="text-tt-text-secondary">{{ (file.size / 1024).toFixed(2) }} Кб</p>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+            <div class="flex flex-row w-full">
+                <div class="flex justify-center w-[40px] ml-[20px] items-center">
+                    <label for="file-input">
+                        <img src="../../../../../assets/paperclip.svg" alt="Выбрать файл">
+                    </label>
+                </div>
+                <input type="file" id="file-input" hidden (change)="onFileSelected($event)" fileInput>
+  
+                <app-messenger-input-field class="w-full" (onSubmit)="onSubmit($event)"></app-messenger-input-field>
+            </div>
+        </div>
+    </app-core-modal-content>
+</app-core-modal>

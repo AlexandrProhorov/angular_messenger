@@ -1,0 +1,272 @@
+<div
+  class="h-full transition-width duration-300 ease-in-out w-[515px] border-l-[1px] bg-tt-selected-tab-color"
+  *ngIf="state.showChatInfo === true"
+>
+  <div *ngIf="state.isConversation === true">
+    <div class="flex flex-row pl-[16px] gap-[16px] h-[72px] bg-tt-hover-color items-center px-[16px]">
+      <div
+        class="flex justify-center items-center size-[40px]"
+        (click)="
+          performAction({
+            type: MessengerSideBarActionTypes.SHOW_INFO
+          })
+        "
+      >
+        <svg-x-mark></svg-x-mark>
+      </div>
+      <p>Обсуждение</p>
+    </div>
+    <div class="messageContent h-[760px] pt-[16px] px-[16px] overflow-y-scroll" *ngIf="state.actualConversation" #scrollMe>
+      <app-messenger-message class="flex"
+        [content]="state.actualConversation.messages[0].messageEntity.content"
+        [senderId]="state.actualConversation.messages[0].messageEntity.senderId"
+        [timeStamp]="state.actualConversation.messages[0].messageEntity.timeStamp">
+      </app-messenger-message>
+      <div class="flex justify-center w-[210px] rounded-lg px-[24px] py-[8px] mx-auto my-[16px] mb-[24px] bg-[#0957D026]">Начало обсуждения</div>
+      <div *ngFor="let message of state.actualConversation?.messages let first = first" class="flex justify-end px-[16px] pt-[16px]" #messages>
+        
+        <app-messenger-message *ngIf="!first" (contextmenu)="performAction({
+          type: MessengerSideBarActionTypes.MODAL_OPEN,
+          event: $event,
+          selectedMessage: message,
+        })"
+          [content]="message.messageEntity.content"
+          [senderId]="message.messageEntity.senderId"
+          [timeStamp]="message.messageEntity.timeStamp">
+        </app-messenger-message>
+
+      </div>
+    </div>
+    <div class="flex flex-row w-full h-[72px] items-center bg-tt-selected-tab-color justify-between" *ngIf="state.actualChat">
+      <svg-paper-clip class="flex ml-[24px] size-[40px] items-center"></svg-paper-clip>
+      <app-messenger-input-field class="w-full" (onSubmit)="
+      performAction({
+        type: MessengerSideBarActionTypes.SEND_CONVERSATION_MESSAGE,
+        inputMessage: $event,
+        chatId: state.actualChat.chatEntity.id,
+        repliedMessage: null,
+        conversation: state.actualConversation
+      })
+    "
+      ></app-messenger-input-field>
+    </div>
+    
+  </div>
+  <div *ngIf="state.selectedItem !== selectedItem.NULL">
+     <div class="flex flex-row pl-[16px] gap-[16px] h-[72px] bg-tt-hover-color items-center">
+      <div
+        class="flex justify-center items-center size-[40px]"
+        (click)="performAction({
+          type: MessengerSideBarActionTypes.TO_INIT_STATE,
+        })">
+        <svg-arrow-backward></svg-arrow-backward>
+      </div>
+      <p>{{itemNames[state.selectedItem]}}</p>
+    </div>
+
+    <div class="flex" *ngIf="state.selectedItem === selectedItem.FILES">
+      <div *ngIf="state.sideBarAttachments?.files == null">
+        <p>Пока тут ничего нет</p>
+      </div>
+      <div *ngFor="let file of state.sideBarAttachments?.files">
+        {{file.name}}
+      </div>
+    </div>
+
+    <div class="flex" *ngIf="state.selectedItem === selectedItem.IMAGES">
+      <div *ngIf="state.sideBarAttachments?.images == null">
+        <p>Пока тут ничего нет</p>
+      </div>
+      <div *ngFor="let image of state.sideBarAttachments?.images">
+        {{image.name}}
+      </div>
+    </div>
+
+    <div class="flex" *ngIf="state.selectedItem === selectedItem.VIDEOS">
+      <div *ngIf="state.sideBarAttachments == null">
+        <p>Пока тут ничего нет</p>
+      </div>
+      <div *ngFor="let video of state.sideBarAttachments?.videos">
+        {{video.name}}
+      </div>
+    </div>
+
+    <div class="flex" *ngIf="state.selectedItem === selectedItem.LINKS">
+      <div *ngIf="state.sideBarAttachments?.links == null">
+        <p>Пока тут ничего нет</p>
+      </div>
+      <div *ngFor="let link of state.sideBarAttachments?.links">
+        {{link.name}}
+      </div>
+    </div>
+
+  </div>
+  <div class="flex flex-col" *ngIf="state.isConversation === false && state.selectedItem === selectedItem.NULL">
+    <div class="flex flex-row pl-[16px] gap-[16px] h-[72px] bg-tt-hover-color items-center">
+      <div
+        class="flex justify-center items-center size-[40px]"
+        (click)="
+          performAction({
+            type: MessengerSideBarActionTypes.SHOW_INFO
+          })
+        "
+      >
+        <svg-x-mark></svg-x-mark>
+      </div>
+      <p>Информация</p>
+    </div>
+
+    <div class="px-[24px] py-[16px] cursor-pointer">
+      <div class="flex flex-row items-center gap-[16px] h-[72px]">
+        <app-core-avatar [size]="'2xl'" [online]="false" placeholder="UX" />
+
+        <div>
+          <h2 class="font-normal mb-2 text-tt-font-size_2xl">
+            {{ state.actualChat?.chatEntity?.name }}
+          </h2>
+
+          <p
+            *ngIf="state.actualChat?.chatEntity?.isGroup"
+            class="font-normal text-tt-text-secondary text-tt-font-size_m"
+          >
+            {{ state.actualChat?.chatEntity?.users?.length }} участников 0 в
+            сети
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-row h-[40px] items-center my-[16px]">
+        <svg-turn-up-backward
+          class="flex justify-center items-center size-[40px]"
+        ></svg-turn-up-backward>
+        <p class="pl-[8px]">Выключить уведомления</p>
+      </div>
+
+      <div class="border-y-[1px] mb-[16px]">
+        <div class="flex flex-col py-[16px]">
+          <button class="flex items-center justify-between h-[40px]" (click)="performAction({
+            type: MessengerSideBarActionTypes.SELECT_ITEM,
+            selectedItem: selectedItem.IMAGES
+          })">
+            <div class="flex flex-row h-[40px] items-center">
+              <svg-camera
+                class="size-[40px] flex items-center justify-center"
+              ></svg-camera>
+              <p class="pl-[8px]">Фотографии</p>
+            </div>
+            <svg-arrow-right
+              class="size-[7px] flex items-center justify-center fill-tt-icon-default"
+            ></svg-arrow-right>
+          </button>
+
+          <button class="flex items-center justify-between h-[40px]" (click)="performAction({
+            type: MessengerSideBarActionTypes.SELECT_ITEM,
+            selectedItem: selectedItem.VIDEOS
+          })">
+            <div class="flex flex-row h-[40px] items-center">
+              <svg-video
+                class="size-[40px] flex items-center justify-center"
+              ></svg-video>
+              <p class="pl-[8px]">Видео</p>
+            </div>
+            <svg-arrow-right
+              class="size-[7px] flex items-center justify-center fill-tt-icon-default"
+            ></svg-arrow-right>
+          </button>
+
+          <button class="flex items-center justify-between h-[40px]" (click)="performAction({
+            type: MessengerSideBarActionTypes.SELECT_ITEM,
+            selectedItem: selectedItem.FILES
+          })"> 
+            <div class="flex flex-row h-[40px] items-center">
+              <svg-doc-text
+                class="size-[40px] flex items-center justify-center"
+              ></svg-doc-text>
+              <p class="pl-[8px]">Файлы</p>
+            </div>
+            <svg-arrow-right
+              class="size-[7px] flex items-center justify-center fill-tt-icon-default"
+            ></svg-arrow-right>
+          </button>
+
+          <button class="flex items-center justify-between h-[40px]" (click)="performAction({
+            type: MessengerSideBarActionTypes.SELECT_ITEM,
+            selectedItem: selectedItem.LINKS
+          })">
+            <div class="flex flex-row h-[40px] items-center">
+              <svg-link
+                class="size-[40px] flex items-center justify-center fill-tt-icon-default"
+              ></svg-link>
+              <p class="pl-[8px]">Ссылки</p>
+            </div>
+            <svg-arrow-right
+              class="size-[7px] flex items-center justify-center fill-tt-icon-default"
+            ></svg-arrow-right>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-row h-[40px] items-center">
+        <svg-leave
+          class="flex justify-center items-center size-[40px] fil-tt-icon-failure"
+        ></svg-leave>
+        <p class="pl-[8px] text-tt-icon-failure">Покинуть чат</p>
+      </div>
+
+      <div *ngIf="state.actualChat?.chatEntity?.isGroup">
+        <div
+          class="flex flex-row justify-between h-[44px] items-center mt-[16px]"
+        >
+          <div class="flex flex-row items-center gap-[16px]">
+            <p>Участники</p>
+            <p>Админы</p>
+          </div>
+          <div class="flex justify-center size-[40px] items-center">
+            <svg-search class="size-[18px]"></svg-search>
+          </div>
+        </div>
+
+        <div class="flex flex-row h-[56px] items-center">
+          <div
+            class="flex justify-center items-center size-[40px] rounded-full bg-[#D9D9D9]"
+          >
+            <svg-plus
+              class="size-[25px] flex items-center justify-center fill-blue-700"
+            ></svg-plus>
+          </div>
+          <p class="pl-[8px] text-tt-text-primary">Добавить участника</p>
+        </div>
+
+        <div
+          *ngFor="let user of state.actualChat?.chatEntity?.users"
+          class="flex flex-col"
+        >
+          <div class="flex flex-row h-[56px] items-center gap-[8px]">
+            <app-core-avatar [size]="'l'" [online]="false" placeholder="UX" />
+            <div class="flex flex-col">
+              <p>{{ user.name }}</p>
+              <p class="text-tt-primary text-tt-font-size_s">в сети</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="state.modal?.visibility === true" class="absolute animated fadeIn" [style.left.px]="state.modal?.posX"
+  [style.top.px]="state.modal?.posY">
+  <app-messenger-modal 
+        (sectionClickedEventEmitter)="
+          performAction({
+            type: MessengerSideBarActionTypes.GET_MODAL_SECTION,
+            section: $event
+          })" 
+        (isVisibleChange)="
+          performAction({
+              type: MessengerSideBarActionTypes.MODAL_CLOSE,
+              isModalVisible: $event
+            })" [type]="'conversation'">
+  </app-messenger-modal>
+</div>
+
+</div>

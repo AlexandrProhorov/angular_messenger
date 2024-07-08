@@ -1,0 +1,53 @@
+<div *ngIf="senderId !== 'You'" class="flex flex-row gap-[16px]">
+    <app-core-avatar class="cursor-pointer" [size]="'m'" [online]="false" placeholder="UX" />
+    <div class="flex flex-col py-2 px-4 bg-tt-icon-contrast-background mb-4 rounded-2 flex-wrap">
+        <div class="flex flex-row justify-between items-baseline">
+            <p class="font-medium text-tt-font-size_l cursor-pointer">
+                {{senderId}}
+            </p>
+            <p class="flex text-tt-text-secondary text-tt-font-size_s cursor-pointer pl-[8px]">
+                {{ timeStamp | date: "HH:mm" }}
+            </p>
+        </div>
+        <p class="font-normal text-tt-font-size_l text-start">
+            {{ content }}
+        </p>
+    </div>
+</div>
+
+<div *ngIf="senderId === 'You'">
+    <div class="flex flex-col" *ngIf="repliedContent === null; else replied">
+        <div
+          class="flex flex-row justify-between items-baseline py-2 px-4 bg-[#0957D026] mb-4 rounded-2 ml-4 gap-2 ">
+          <p class="font-normal text-tt-font-size_l text-start">
+            {{ content }}
+          </p>
+          <p class="flex text-tt-text-secondary text-tt-font-size_s cursor-pointer">
+            {{ timeStamp | date: "HH:mm" }}
+          </p>
+        </div>
+      </div>
+    <ng-template #replied>
+      <div class="flex flex-col bg-[#0957D026] rounded-lg px-4 mb-4">
+        <div class="flex flex-row justify-between items-center py-2 gap-2">
+          <div class="flex flex-row bg-white pr-[17px] rounded-[4px] h-[38px] items-center">
+            <div class="h-[32px] w-1 bg-tt-primary ml-[2px]"></div>
+            <div class="pl-[13px] text-start">
+              <p class="text-tt-font-size_l font-medium">
+                {{ senderId }}
+              </p>
+              <p class="text-tt-font-size_l">
+                {{ content }}
+              </p>
+            </div>
+          </div>
+          <p class="flex text-tt-text-secondary text-tt-font-size_s cursor-pointer">
+            {{ timeStamp | date: "HH:mm" }}
+          </p>
+        </div>
+        <p class="font-normal text-tt-font-size_l pb-[8px] text-start">
+          {{ content }}
+        </p>
+      </div>
+    </ng-template>
+</div>

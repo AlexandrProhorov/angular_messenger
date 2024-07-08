@@ -1,0 +1,16 @@
+<div class="flex flex-row items-center w-full">
+  <input
+    (keyup.enter)="onSubmitValue($event)"
+    [placeholder]="placeholder"
+    (input)="onChangeValue($event)"
+    class="bg-tt-icon-contrast-background h-[48px] ml-4 w-full outline-none placeholder-tt-icon-field text-tt-font-size_l ps-4 pe-4 rounded-tt-border-radius_m border-2"
+    placeholder="Сообщение..."
+    #messageInput
+  />
+  <div
+    class="flex items-center size-[40px] mx-4 justify-center"
+    (click)="onSubmitValue($event)"
+  >
+  <svg-paper-plane></svg-paper-plane>
+  </div>
+</div>

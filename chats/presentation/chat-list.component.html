@@ -1,0 +1,114 @@
+<div class="flex h-full border-r-[2px]">
+  <div class="flex flex-row">
+    <div class="flex flex-col w-[465px]">
+      <div
+        class="flex flex-row w-auto px-[16px] my-[16px] justify-between gap-[14px]"
+      >
+        <div class="flex flex-row w-full gap-4">
+          <app-core-search-field class="w-full" [height]="'m'"
+            (onChange)="
+              performAction({
+                type: ChatListActionTypes.FILTER_CHAT_LIST,
+                filter: $event
+              })">
+          </app-core-search-field>
+
+          <div class="w-[40px] flex justify-center items-center" (click)="performAction({
+            type: ChatListActionTypes.OPEN_CREATE_MENU
+          })">
+            <svg-square-and-pencil></svg-square-and-pencil>
+          </div>
+        </div>
+      </div>
+      <div class="h-[833px] messageContent overflow-y-scroll">
+        <div
+          [ngClass]="{
+            'bg-tt-selected-tab-color':
+              state.selectedChat?.chatEntity?.id === chat.chatEntity.id
+          }"
+          class="flex flex-row h-[72px] cursor-pointer justify-between pr-4"
+          *ngFor="
+            let chat of state.filteredChats ? state.filteredChats : state.chats
+          "
+          (click)="
+            performAction({
+              type: ChatListActionTypes.SELECT_CHAT,
+              selectedChat: chat
+            })
+          "
+          (contextmenu)="
+            performAction({
+              type: ChatListActionTypes.MODAL_OPEN,
+              event: $event,
+              selectedChat: chat,
+            })
+        "
+        >
+          <div class="flex flex-row">
+            <div class="flex flex-row items-center ml-[1px]">
+              <div
+                [style.visibility]="
+                  state.selectedChat?.chatEntity?.id === chat.chatEntity.id
+                    ? 'visible'
+                    : 'hidden'
+                "
+                class="h-[50px] w-1 bg-tt-primary mr-[10px]"
+              ></div>
+              <app-core-avatar *ngIf="chat.chatEntity.isGroup === false" [size]="'xl'" [online]="true" placeholder="UX" />
+              <app-core-avatar *ngIf="chat.chatEntity.isGroup === true" [size]="'xl'" [online]="false" placeholder="UX" />
+            </div>
+
+            <div class="flex flex-col pt-2 pl-4">
+              <p class="font-medium text-tt-font-size_l">
+                {{ chat.chatEntity.name }}
+              </p>
+              <p *ngIf="chat.chatEntity.isGroup" class="font-normal text-tt-font-size_l">
+                {{ chat.chatEntity.lastMessage?.messageEntity?.senderId }}
+              </p>
+              <p class="font-normal text-tt-font-size_l">
+                {{ chat.chatEntity.lastMessage?.messageEntity?.content }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-col">
+            <div class="flex flex-row pt-2 gap-[4px]">
+              <svg-checkmark-sended *ngIf="!chat.chatEntity.lastMessage?.isChecked && 
+                chat.chatEntity.lastMessage?.messageEntity?.senderId === 'You'"></svg-checkmark-sended>
+              <svg-checkmark-checked *ngIf="chat.chatEntity.lastMessage?.isChecked && 
+                chat.chatEntity.lastMessage?.messageEntity?.senderId === 'You'"></svg-checkmark-checked>
+              <p class="flex text-tt-text-secondary text-tt-font-size_s justify-end">
+                {{ chat.chatEntity.lastMessage?.messageEntity?.timeStamp| date: "HH:mm" }}
+              </p>
+            </div>
+            <app-core-badge class="flex justify-end mt-[3px]" *ngIf="chat.unreadCount !== 0">{{chat.unreadCount}}</app-core-badge>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="state.modal?.visibility === true" class="absolute animated fadeIn" [style.left.px]="state.modal?.posX"
+    [style.top.px]="state.modal?.posY">
+    <app-messenger-modal (sectionClickedEventEmitter)="
+        performAction({
+          type: ChatListActionTypes.GET_MODAL_SECTION,
+          section: $event
+        })" (isVisibleChange)="
+        performAction({
+          type: ChatListActionTypes.MODAL_CLOSE,
+          isModalVisible: $event
+        })" [type]="'chats'">
+    </app-messenger-modal>
+  </div>
+  <app-messenger-create-modal 
+  [isOpen]="state.chatCreateMenu" 
+  (isVisibleChange)="performAction({
+    type: ChatListActionTypes.CLOSE_CREATE_MENU
+  })"
+  (createChat)="performAction({
+    type: ChatListActionTypes.CREATE_CHAT,
+    chat: $event
+  })"
+  ></app-messenger-create-modal>
+</div>
